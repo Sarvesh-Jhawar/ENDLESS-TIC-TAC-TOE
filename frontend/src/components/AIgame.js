@@ -99,6 +99,8 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, level: i
       board: newBoard,
       currentPlayer: initialAiMark,
       difficulty: levelDifficultyMap[initialLevel],
+      playerMoves: newPlayerMoves,
+      aiMoves: aiMoves,
     });
 
     const aiMoveIndex = response.data.moveIndex;
