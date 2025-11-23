@@ -44,6 +44,17 @@ function LocalGame() {
     [2, 4, 6],
   ];
 
+  // Determine which mark is about to disappear
+  const getDyingMarkIndex = () => {
+    // If it's X's turn and X has 3 moves, the first move (index 0) will disappear
+    if (xIsNext && xMoves.length >= 3) return xMoves[0];
+    // If it's O's turn and O has 3 moves, the first move (index 0) will disappear
+    if (!xIsNext && oMoves.length >= 3) return oMoves[0];
+    return null;
+  };
+
+  const dyingMarkIndex = getDyingMarkIndex();
+
   const checkWinner = (currentBoard) => {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
@@ -231,10 +242,14 @@ function LocalGame() {
     const player = board[index];
     const isRed = player === "X";
     const isBlue = player === "O";
+    // Check if this specific cell is the one about to vanish
+    const isDying = index === dyingMarkIndex;
+
     return (
       <div
         key={index}
-        className={`w-24 h-24 sm:w-28 sm:h-28 bg-slate-800/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-5xl sm:text-6xl font-bold cursor-pointer transition-all duration-300 hover:bg-slate-700/80 hover:-translate-y-1 hover:scale-105 shadow-lg border border-slate-700/50 ${
+        // Added 'relative' to enable absolute positioning for the exclamation mark
+        className={`relative w-24 h-24 sm:w-28 sm:h-28 bg-slate-800/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-5xl sm:text-6xl font-bold cursor-pointer transition-all duration-300 hover:bg-slate-700/80 hover:-translate-y-1 hover:scale-105 shadow-lg border border-slate-700/50 ${
           isRed
             ? "text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,1)]"
             : isBlue
@@ -246,6 +261,13 @@ function LocalGame() {
         {player && (
           <span className="animate-[scale-in_0.3s_ease-out]">
             {player}
+          </span>
+        )}
+        
+        {/* Visual Indicator for disappearing mark */}
+        {isDying && (
+          <span className="absolute top-1 right-2 text-yellow-400 text-xl sm:text-2xl font-bold animate-pulse drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]">
+            !
           </span>
         )}
       </div>
@@ -711,5 +733,4 @@ function LocalGame() {
     </div>
   );
 }
-
 export default LocalGame;
