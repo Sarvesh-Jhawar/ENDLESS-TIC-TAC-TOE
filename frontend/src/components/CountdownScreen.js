@@ -19,50 +19,43 @@ function CountdownScreen({ startGame }) {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
       color: 'white'
     }}>
-      <h1 style={{ 
-        fontSize: '3rem', 
+      <h1 style={{
+        fontSize: '1.8rem',
         marginBottom: '30px',
-        textShadow: '3px 3px 6px rgba(0,0,0,0.3)'
+        color: '#60a5fa'
       }}>
-        ⚔️ CHAMPIONSHIP MODE ⚔️
+        ⚔️ GET READY ⚔️
       </h1>
-      
+
       <div style={{
-        fontSize: '10rem',
+        fontSize: '8rem',
         fontWeight: 'bold',
-        animation: 'pulse 1s ease-in-out infinite',
-        textShadow: '5px 5px 15px rgba(0,0,0,0.5)',
-        marginBottom: '30px'
+        animation: 'countdownPulse 1s ease-in-out infinite',
+        textShadow: '0 0 40px rgba(59, 130, 246, 0.6)',
+        marginBottom: '30px',
+        color: '#3b82f6'
       }}>
         {countdown === 0 ? "GO!" : countdown}
       </div>
-      
+
       <div style={{
-        fontSize: '1.5rem',
+        fontSize: '1rem',
         textAlign: 'center',
-        maxWidth: '600px',
-        padding: '20px',
-        background: 'rgba(255,255,255,0.15)',
-        borderRadius: '15px',
-        backdropFilter: 'blur(10px)'
+        padding: '15px 25px',
+        background: 'rgba(30, 41, 59, 0.8)',
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        color: '#94a3b8'
       }}>
-        <p style={{ margin: '10px 0', fontWeight: 'bold', color: '#ffd700' }}>
-          🏆 Win 5 Rounds to Become Champion
-        </p>
-        <p style={{ margin: '10px 0', fontWeight: 'bold', color: '#ff6b6b' }}>
-          💀 AI Wins Once = Game Over
-        </p>
-        <p style={{ margin: '10px 0', fontWeight: 'bold', color: '#4CAF50' }}>
-          ⏱️ 2 Seconds Per Move
-        </p>
+        ⏱️ 1.5 sec per move • 💀 One AI win = Game Over
       </div>
 
       <style>
         {`
-          @keyframes pulse {
+          @keyframes countdownPulse {
             0%, 100% {
               transform: scale(1);
               opacity: 1;
