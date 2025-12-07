@@ -1,6 +1,10 @@
 import React from "react";
+import { useSound } from "../contexts/SoundContext";
+import { useNavigate } from "react-router-dom";
 
 function RulesScreen({ onStart }) {
+  const navigate = useNavigate();
+  const { playSound } = useSound();
   return (
     <div style={{
       minHeight: '100vh',
@@ -10,6 +14,8 @@ function RulesScreen({ onStart }) {
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
       padding: '20px'
     }}>
+      {/* Home Button */}
+      <button onClick={() => { playSound('buttonClick'); navigate('/'); }} style={{ position: 'fixed', top: '20px', left: '20px', padding: '10px 20px', borderRadius: '12px', background: 'rgba(71, 85, 105, 0.9)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', zIndex: 9999, backdropFilter: 'blur(10px)', fontWeight: 'bold' }}> Home</button>
       <div style={{
         maxWidth: '500px',
         width: '100%',

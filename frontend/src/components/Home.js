@@ -1,9 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import ParticleBackground from "./ParticleBackground";
+import SoundButton from "./SoundButton";
+import { useSound } from "../contexts/SoundContext";
 
 function Home() {
   const navigate = useNavigate();
+  const { playSound } = useSound();
 
   // Floating symbols data
   const floatingSymbols = [
@@ -21,6 +24,9 @@ function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Particle Background */}
       <ParticleBackground particleColor="mixed" />
+
+      {/* Sound Button */}
+      <SoundButton />
 
       {/* Animated gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-red-500/5 via-transparent to-blue-500/5 animate-gradient pointer-events-none" />
@@ -102,7 +108,8 @@ function Home() {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
-            onClick={() => navigate("/local")}
+            onClick={() => { playSound('buttonClick'); navigate("/local"); }}
+            onMouseEnter={() => playSound('hover')}
             className="group relative px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 w-full sm:w-auto min-w-[220px] overflow-hidden"
           >
             {/* Shimmer effect */}
@@ -120,7 +127,8 @@ function Home() {
           </button>
 
           <button
-            onClick={() => navigate("/ai")}
+            onClick={() => { playSound('buttonClick'); navigate("/ai"); }}
+            onMouseEnter={() => playSound('hover')}
             className="group relative px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-700 backdrop-blur-sm border-2 border-blue-500/50 text-blue-400 font-semibold rounded-xl hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 w-full sm:w-auto min-w-[220px] overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30"
           >
             {/* Shimmer effect */}

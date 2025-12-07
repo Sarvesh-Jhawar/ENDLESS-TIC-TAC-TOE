@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ParticleBackground from "./ParticleBackground";
 import Confetti from "./Confetti";
+import SoundButton from "./SoundButton";
+import { useSound } from "../contexts/SoundContext";
 
 function LocalGame() {
   const navigate = useNavigate();
+  const { playSound } = useSound();
 
   const [board, setBoard] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
@@ -278,13 +281,11 @@ function LocalGame() {
         {player && (
           <span
             className={`animate-cell-pop ${isRed
-              ? 'drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] animate-neon-pulse'
-              : 'drop-shadow-[0_0_20px_rgba(59,130,246,0.8)] animate-neon-pulse'
+              ? ''
+              : ''
               }`}
             style={{
-              textShadow: isRed
-                ? '0 0 10px #ef4444, 0 0 20px #ef4444, 0 0 30px #ef4444'
-                : '0 0 10px #3b82f6, 0 0 20px #3b82f6, 0 0 30px #3b82f6',
+              
             }}
           >
             {player}
@@ -382,6 +383,8 @@ function LocalGame() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
         <ParticleBackground particleColor="mixed" />
+        <SoundButton />
+        <button onClick={() => { playSound('buttonClick'); navigate('/'); }} style={{ position: 'fixed', top: '20px', left: '20px', width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(71, 85, 105, 0.8)', border: '2px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', zIndex: 9999, backdropFilter: 'blur(10px)' }} title="Home"> Home</button>
         <div className="relative z-10 flex flex-col items-start gap-8 p-8 bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-[500px] border border-slate-700/50">
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent self-center m-0 animate-text-glow">
             Game Rules
@@ -474,6 +477,8 @@ function LocalGame() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
         <ParticleBackground particleColor="mixed" />
+        <SoundButton />
+        <button onClick={() => { playSound('buttonClick'); navigate('/'); }} style={{ position: 'fixed', top: '20px', left: '20px', width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(71, 85, 105, 0.8)', border: '2px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', zIndex: 9999, backdropFilter: 'blur(10px)' }} title="Home"> Home</button>
         <div className="relative z-10 flex flex-col items-center gap-8 p-8 bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-[500px] border border-slate-700/50">
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent animate-text-glow">
             Enter Player Names
@@ -758,14 +763,14 @@ function LocalGame() {
             {board.some((cell) => cell !== null) && (
               <button
                 className="flex-1 px-6 py-4 text-xl font-semibold border-none rounded-lg cursor-pointer transition-all duration-300 bg-slate-700 text-gray-100 shadow-lg hover:-translate-y-1 hover:shadow-2xl"
-                onClick={handleRestart}
+                onClick={() => { playSound('buttonClick'); handleRestart(); }}
               >
                 Restart
               </button>
             )}
             <button
               className="flex-1 px-6 py-4 text-xl font-semibold border-none rounded-lg cursor-pointer transition-all duration-300 bg-slate-700 text-gray-100 shadow-lg hover:-translate-y-1 hover:shadow-2xl"
-              onClick={handleQuit}
+              onClick={() => { playSound('buttonClick'); handleQuit(); }}
             >
               Quit
             </button>

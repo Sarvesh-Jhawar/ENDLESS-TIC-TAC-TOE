@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
+import SoundButton from "./SoundButton";
+import { useSound } from "../contexts/SoundContext";
 
 function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }) {
   const emptyBoard = Array(9).fill(null);
+  const { playSound } = useSound();
 
   const [board, setBoard] = useState(emptyBoard);
   const [currentPlayer, setCurrentPlayer] = useState(initialPlayerMark);
@@ -430,7 +433,7 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
           </p>
 
           <button
-            onClick={startRound}
+            onClick={() => { playSound('buttonClick'); startRound(); }}
             style={{ padding: '15px 40px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem' }}
           >
             🚀 Start Round
@@ -498,7 +501,7 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
 
       {/* Quit Button */}
       {!gameOver && (
-        <button onClick={onQuit} style={{ padding: '10px 25px', background: 'rgba(71, 85, 105, 0.8)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>Quit</button>
+        <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '10px 25px', background: 'rgba(71, 85, 105, 0.8)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>Quit</button>
       )}
 
       {/* Championship Over Modal */}
@@ -509,8 +512,8 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
             <p style={{ fontSize: '0.95rem', marginBottom: '10px', color: '#e2e8f0' }}>{aiComment}</p>
             <p style={{ fontSize: '0.85rem', marginBottom: '20px', color: '#94a3b8' }}>Rounds: {totalRounds} | Wins: {roundsWon}</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button onClick={restartChampionship} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>🔄 Retry</button>
-              <button onClick={onQuit} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Menu</button>
+              <button onClick={() => { playSound('buttonClick'); restartChampionship(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>🔄 Retry</button>
+              <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Menu</button>
             </div>
           </div>
         </div>
@@ -523,8 +526,8 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
             <p style={{ fontSize: '1.1rem', marginBottom: '10px', color: message.includes('won') ? '#4ade80' : '#f87171' }}>{message}</p>
             <p style={{ fontSize: '0.9rem', marginBottom: '20px', color: '#e2e8f0' }}>{aiComment}</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button onClick={nextRound} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Next →</button>
-              <button onClick={onQuit} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Quit</button>
+              <button onClick={() => { playSound('buttonClick'); nextRound(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Next →</button>
+              <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Quit</button>
             </div>
           </div>
         </div>
