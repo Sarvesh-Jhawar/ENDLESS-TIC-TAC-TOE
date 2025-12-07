@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import SoundButton from "./SoundButton";
 import { useSound } from "../contexts/SoundContext";
+import LeaderboardForm from "./LeaderboardForm";
+import LeaderboardDisplay from "./LeaderboardDisplay";
 
 function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }) {
   const emptyBoard = Array(9).fill(null);
@@ -27,10 +29,20 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
   const [isFirstMove, setIsFirstMove] = useState(true);
   const [showRoundStart, setShowRoundStart] = useState(true);
   const [roundStarter, setRoundStarter] = useState("player");
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [showLeaderboardForm, setShowLeaderboardForm] = useState(false);
+  const [showLeaderboardDisplay, setShowLeaderboardDisplay] = useState(false);
+  const [leaderboardMessage, setLeaderboardMessage] = useState("");
+  const [showPrizeDialog, setShowPrizeDialog] = useState(true); // Auto-vanishing dialog
 
   const aiMovesRef = useRef(aiMoves);
   aiMovesRef.current = aiMoves;
   const prevBoardRef = useRef(emptyBoard);
+
+  // Total game timer (milliseconds)
+  const [totalGameTime, setTotalGameTime] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const gameStartTimeRef = useRef(null);
 
   // AI COMMENTS LIBRARY
   const comments = {
@@ -190,6 +202,45 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     if (playerMoves.length === 3 && !gameOver) dying.push(playerMoves[0]);
     setDyingPositions(dying);
   }, [playerMoves, gameOver]);
+
+  // Total game timer effect - updates every 10ms for milliseconds precision
+  useEffect(() => {
+    let interval;
+    if (timerRunning && !championshipOver) {
+      interval = setInterval(() => {
+        if (gameStartTimeRef.current) {
+          setTotalGameTime(Date.now() - gameStartTimeRef.current);
+        }
+      }, 10);
+    }
+    return () => clearInterval(interval);
+  }, [timerRunning, championshipOver]);
+
+  // Auto-hide prize dialog after 3 seconds
+  useEffect(() => {
+    if (showPrizeDialog) {
+      const timer = setTimeout(() => {
+        setShowPrizeDialog(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPrizeDialog]);
+
+  // Start timer when first round begins
+  useEffect(() => {
+    if (!showRoundStart && totalRounds === 0 && !gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now();
+      setTimerRunning(true);
+    }
+  }, [showRoundStart, totalRounds]);
+
+  // Format time as MM:SS.mmm
+  const formatGameTime = (ms) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const milliseconds = ms % 1000;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+  };
 
   const checkWinner = useCallback((b) => {
     const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -396,6 +447,11 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     setIsFirstMove(true);
     prevBoardRef.current = emptyBoard;
 
+    // Reset game timer
+    setTotalGameTime(0);
+    setTimerRunning(false);
+    gameStartTimeRef.current = null;
+
     const randomStart = Math.random() < 0.5;
     if (randomStart) {
       setRoundStarter("ai");
@@ -426,11 +482,18 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
             {roundStarter === "player" ? "You Start First!" : "AI Starts First!"}
           </p>
 
-          <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '25px' }}>
+          <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '15px' }}>
             {roundStarter === "player"
               ? "No timer for your first move. Take your time! ⏱️❌"
               : "Watch the AI's opening move carefully! 👀"}
           </p>
+
+          {/* Prize Info */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))', padding: '12px', borderRadius: '12px', marginBottom: '20px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+            <p style={{ fontSize: '0.85rem', color: '#c084fc', fontWeight: 'bold', margin: 0 }}>
+              🎁 Win 5 rounds to join the leaderboard! Top 2 win exciting prizes every month! 🏆
+            </p>
+          </div>
 
           <button
             onClick={() => { playSound('buttonClick'); startRound(); }}
@@ -446,10 +509,36 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', color: 'white' }}>
 
+      {/* Floating Prize Dialog - Auto vanishes after 3 seconds */}
+      {showPrizeDialog && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(236, 72, 153, 0.95))',
+          padding: '15px 25px',
+          borderRadius: '16px',
+          boxShadow: '0 10px 40px rgba(168, 85, 247, 0.4)',
+          animation: 'slideDown 0.5s ease-out',
+          maxWidth: '350px',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: 0, color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>
+            🎁 Win 5 rounds for Leaderboard!
+          </p>
+          <p style={{ margin: '5px 0 0 0', color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem' }}>
+            Top 2 players win exciting prizes every month! 🏆
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '10px', padding: '12px 25px', background: 'rgba(30, 41, 59, 0.9)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: '350px' }}>
         <h2 style={{ margin: '0 0 5px 0', fontSize: '1.2rem', color: '#60a5fa' }}>⚔️ CHAMPIONSHIP</h2>
         <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#fbbf24' }}>🏆 {roundsWon}/5</div>
+        <div style={{ fontSize: '0.85rem', color: '#a78bfa', marginTop: '5px', fontFamily: 'monospace' }}>⏱️ {formatGameTime(totalGameTime)}</div>
       </div>
 
       {/* AI Comment Box */}
@@ -501,21 +590,92 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
 
       {/* Quit Button */}
       {!gameOver && (
-        <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '10px 25px', background: 'rgba(71, 85, 105, 0.8)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>Quit</button>
+        <button onClick={() => { playSound('buttonClick'); setShowQuitConfirm(true); }} style={{ padding: '10px 25px', background: 'rgba(71, 85, 105, 0.8)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>Quit</button>
+      )}
+
+      {/* Quit Confirmation Modal */}
+      {showQuitConfirm && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1001 }}>
+          <div style={{ background: 'rgba(30, 41, 59, 0.95)', padding: '30px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '350px', width: '90%' }}>
+            <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', color: '#f87171' }}>⚠️ Quit Game?</h2>
+            <p style={{ fontSize: '0.95rem', marginBottom: '20px', color: '#e2e8f0' }}>Are you sure you want to quit? Your progress will be lost.</p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Yes, Quit</button>
+              <button onClick={() => { playSound('buttonClick'); setShowQuitConfirm(false); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Continue Playing</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Championship Over Modal */}
       {championshipOver && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'rgba(30, 41, 59, 0.95)', padding: '30px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '350px', width: '90%' }}>
-            <h2 style={{ marginBottom: '15px', fontSize: '1.8rem', color: roundsWon === 5 ? '#fbbf24' : '#ef4444' }}>{roundsWon === 5 ? "🏆 CHAMPION!" : "💀 DEFEATED"}</h2>
-            <p style={{ fontSize: '0.95rem', marginBottom: '10px', color: '#e2e8f0' }}>{aiComment}</p>
-            <p style={{ fontSize: '0.85rem', marginBottom: '20px', color: '#94a3b8' }}>Rounds: {totalRounds} | Wins: {roundsWon}</p>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button onClick={() => { playSound('buttonClick'); restartChampionship(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>🔄 Retry</button>
-              <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Menu</button>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px', overflowY: 'auto' }}>
+          {/* Winner - Show Leaderboard Form or Display */}
+          {roundsWon === 5 ? (
+            showLeaderboardDisplay ? (
+              <div className="flex flex-col items-center gap-4">
+                {/* Show submission message if exists */}
+                {leaderboardMessage && (
+                  <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-4 border border-green-500/30 max-w-md text-center animate-victory-burst">
+                    <p className="text-green-400 font-medium">{leaderboardMessage}</p>
+                  </div>
+                )}
+                <LeaderboardDisplay onClose={() => {
+                  setShowLeaderboardDisplay(false);
+                  setShowLeaderboardForm(false);
+                  setLeaderboardMessage("");
+                }} />
+                <div className="flex gap-3">
+                  <button onClick={() => { playSound('buttonClick'); restartChampionship(); setShowLeaderboardForm(false); setShowLeaderboardDisplay(false); }} className="px-5 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:scale-105 transition-transform">🔄 Play Again</button>
+                  <button onClick={() => { playSound('buttonClick'); onQuit(); }} className="px-5 py-3 bg-slate-700/80 text-slate-200 font-medium rounded-xl border border-slate-600/50 hover:bg-slate-600/80 transition-colors">Menu</button>
+                </div>
+              </div>
+            ) : showLeaderboardForm ? (
+              <div className="flex flex-col items-center gap-4">
+                <LeaderboardForm
+                  timeTakenMs={totalGameTime}
+                  onSubmitSuccess={(message) => {
+                    setLeaderboardMessage(message || "");
+                    setShowLeaderboardForm(false);
+                    setShowLeaderboardDisplay(true);
+                  }}
+                />
+                <button onClick={() => { playSound('buttonClick'); setShowLeaderboardForm(false); setShowLeaderboardDisplay(true); }} className="text-slate-400 text-sm hover:text-slate-300 transition-colors underline">Skip and view leaderboard</button>
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(30, 41, 59, 0.95)', padding: '30px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '380px', width: '90%' }}>
+                <h2 style={{ marginBottom: '15px', fontSize: '1.8rem', color: '#fbbf24' }}>🏆 CHAMPION!</h2>
+                <p style={{ fontSize: '0.95rem', marginBottom: '10px', color: '#e2e8f0' }}>{aiComment}</p>
+                <p style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#94a3b8' }}>Rounds: {totalRounds} | Wins: {roundsWon}</p>
+                <p style={{ fontSize: '1rem', marginBottom: '15px', color: '#a78bfa', fontFamily: 'monospace', fontWeight: 'bold' }}>⏱️ Total Time: {formatGameTime(totalGameTime)}</p>
+
+                {/* Prize Banner */}
+                <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))', padding: '12px', borderRadius: '12px', marginBottom: '15px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#c084fc', fontWeight: 'bold', margin: 0 }}>🎁 Top 2 players win exciting prizes every month! 🎁</p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button onClick={() => { playSound('buttonClick'); setShowLeaderboardForm(true); }} style={{ padding: '14px 20px', background: 'linear-gradient(135deg, #ef4444, #ec4899)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}>🏆 Join Leaderboard & Win!</button>
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button onClick={() => { playSound('buttonClick'); restartChampionship(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>🔄 Retry</button>
+                    <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Menu</button>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            /* Defeated */
+            <div style={{ background: 'rgba(30, 41, 59, 0.95)', padding: '30px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '350px', width: '90%' }}>
+              <h2 style={{ marginBottom: '15px', fontSize: '1.8rem', color: '#ef4444' }}>💀 DEFEATED</h2>
+              <p style={{ fontSize: '0.95rem', marginBottom: '10px', color: '#e2e8f0' }}>{aiComment}</p>
+              <p style={{ fontSize: '0.85rem', marginBottom: '10px', color: '#94a3b8' }}>Rounds: {totalRounds} | Wins: {roundsWon}</p>
+              <p style={{ fontSize: '1rem', marginBottom: '20px', color: '#a78bfa', fontFamily: 'monospace', fontWeight: 'bold' }}>⏱️ Total Time: {formatGameTime(totalGameTime)}</p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <button onClick={() => { playSound('buttonClick'); restartChampionship(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>🔄 Retry</button>
+                <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Menu</button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -527,7 +687,7 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
             <p style={{ fontSize: '0.9rem', marginBottom: '20px', color: '#e2e8f0' }}>{aiComment}</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button onClick={() => { playSound('buttonClick'); nextRound(); }} style={{ padding: '12px 20px', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Next →</button>
-              <button onClick={() => { playSound('buttonClick'); onQuit(); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Quit</button>
+              <button onClick={() => { playSound('buttonClick'); setShowQuitConfirm(true); }} style={{ padding: '12px 20px', background: 'rgba(71, 85, 105, 0.8)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>Quit</button>
             </div>
           </div>
         </div>

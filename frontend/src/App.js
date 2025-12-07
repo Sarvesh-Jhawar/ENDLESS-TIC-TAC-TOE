@@ -5,6 +5,7 @@ import { SoundProvider } from "./contexts/SoundContext";
 import Home from "./components/Home";
 import LocalGame from "./components/Localgame";
 import AIgameWrapper from "./components/AigameWrapper";
+import LeaderboardPage from "./components/LeaderboardPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/local" element={<LocalGame />} />
           <Route path="/ai" element={<AIgameWrapper />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
       </BrowserRouter>
     </SoundProvider>

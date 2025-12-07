@@ -143,8 +143,25 @@ function Home() {
           </button>
         </div>
 
+        {/* Leaderboard Button */}
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => { playSound('buttonClick'); navigate("/leaderboard"); }}
+            onMouseEnter={() => playSound('hover')}
+            className="group relative px-6 py-3 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 backdrop-blur-sm border border-yellow-500/40 text-yellow-400 font-medium rounded-xl hover:bg-yellow-500/20 hover:border-yellow-400 hover:text-yellow-300 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden shadow-lg shadow-yellow-500/10 hover:shadow-yellow-500/30"
+          >
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              <span className="text-xl">🏆</span>
+              <span>View Leaderboard</span>
+            </span>
+          </button>
+        </div>
+
         {/* Bottom decoration */}
-        <div className="mt-16 flex justify-center gap-3">
+        <div className="mt-12 flex justify-center gap-3">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce shadow-lg shadow-red-500/50"></div>
           <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-150 shadow-lg shadow-pink-500/50"></div>
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-300 shadow-lg shadow-blue-500/50"></div>
