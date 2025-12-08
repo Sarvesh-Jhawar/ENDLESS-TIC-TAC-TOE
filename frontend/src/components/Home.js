@@ -10,9 +10,24 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 function Home() {
   const navigate = useNavigate();
   const { playSound } = useSound();
+  const [showRulesModal, setShowRulesModal] = useState(false);
   const [isConnectingToAI, setIsConnectingToAI] = useState(false);
   const [connectionProgress, setConnectionProgress] = useState(0);
   const [connectionMessage, setConnectionMessage] = useState("Waking up AI...");
+
+  // Show rules modal first
+  const handleChallengeAI = () => {
+    playSound('buttonClick');
+    setShowRulesModal(true);
+  };
+
+  // Start connecting after reading rules
+  const handleStartGame = () => {
+    playSound('buttonClick');
+    setShowRulesModal(false);
+    connectToAI();
+  };
+
 
 
   // Connect to AI with warmup request
@@ -130,6 +145,74 @@ function Home() {
         </div>
       )}
 
+      {/* Rules Modal */}
+      {showRulesModal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-800/90 backdrop-blur-sm rounded-2xl p-6 max-w-md w-full border border-slate-700/50 shadow-2xl animate-victory-burst">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-3">🤖</div>
+              <h2 className="text-2xl font-bold text-white mb-1">Challenge AI</h2>
+              <p className="text-slate-400 text-sm">Beat the AI 5 times to become Champion!</p>
+            </div>
+
+            {/* Game Rules */}
+            <div className="space-y-3 mb-6">
+              <h3 className="text-blue-400 font-semibold flex items-center gap-2">
+                <span>📋</span> How to Play
+              </h3>
+              <ul className="space-y-2 text-slate-300 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400">✓</span>
+                  <span>Get 3 in a row (horizontal, vertical, or diagonal) to win a round</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-400">⚡</span>
+                  <span><strong>Twist:</strong> Each player can only have 3 marks on the board</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-400">🔄</span>
+                  <span>Your 4th mark causes your oldest mark to vanish!</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-400">⏰</span>
+                  <span>You have 1.5 seconds per move (first move has no timer)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">🏆</span>
+                  <span>Win 5 rounds to become Champion and join the Leaderboard!</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Prize Info */}
+            <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 rounded-xl p-3 mb-6 border border-yellow-500/20">
+              <p className="text-yellow-400 text-sm font-medium text-center flex items-center justify-center gap-2">
+                <span>🎁</span> Top 2 Champions win prizes every month! <span>🏆</span>
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => { playSound('buttonClick'); setShowRulesModal(false); }}
+                className="flex-1 py-3 bg-slate-700/80 text-slate-300 font-medium rounded-xl border border-slate-600/50 hover:bg-slate-600/80 transition-all duration-200"
+              >
+                ← Back
+              </button>
+              <button
+                onClick={handleStartGame}
+                onMouseEnter={() => playSound('hover')}
+                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200"
+              >
+                🚀 Start Game
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Floating X and O symbols */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {floatingSymbols.map((item, index) => (
@@ -226,7 +309,7 @@ function Home() {
           </button>
 
           <button
-            onClick={() => { playSound('buttonClick'); connectToAI(); }}
+            onClick={handleChallengeAI}
             onMouseEnter={() => playSound('hover')}
             className="group relative px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-700 backdrop-blur-sm border-2 border-blue-500/50 text-blue-400 font-semibold rounded-xl hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 w-full sm:w-auto min-w-[220px] overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30"
           >
