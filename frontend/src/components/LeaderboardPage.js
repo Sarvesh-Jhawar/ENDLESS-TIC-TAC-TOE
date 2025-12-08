@@ -5,6 +5,8 @@ import ParticleBackground from "./ParticleBackground";
 import SoundButton from "./SoundButton";
 import { useSound } from "../contexts/SoundContext";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function LeaderboardPage() {
     const navigate = useNavigate();
     const { playSound } = useSound();
@@ -19,7 +21,7 @@ function LeaderboardPage() {
     const fetchLeaderboard = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get("http://localhost:8080/api/leaderboard/all");
+            const response = await axios.get(`${API_URL}/api/leaderboard/all`);
             setLeaderboard(response.data);
             setError("");
         } catch (err) {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function LeaderboardDisplay({ onClose }) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -12,7 +14,7 @@ function LeaderboardDisplay({ onClose }) {
 
     const fetchLeaderboard = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/leaderboard/top");
+            const response = await axios.get(`${API_URL}/api/leaderboard/top`);
             setLeaderboard(response.data);
         } catch (err) {
             console.error("Error fetching leaderboard:", err);

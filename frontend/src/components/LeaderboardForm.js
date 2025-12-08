@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function LeaderboardForm({ timeTakenMs, onSubmitSuccess }) {
     const [formData, setFormData] = useState({
         name: "",
@@ -33,7 +35,7 @@ function LeaderboardForm({ timeTakenMs, onSubmitSuccess }) {
         setError("");
 
         try {
-            const response = await axios.post("http://localhost:8080/api/leaderboard/add", {
+            const response = await axios.post(`${API_URL}/api/leaderboard/add`, {
                 name: formData.name.trim(),
                 phoneNumber: formData.phoneNumber.trim(),
                 email: formData.email.trim(),

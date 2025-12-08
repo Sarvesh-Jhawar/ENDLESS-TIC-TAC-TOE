@@ -5,6 +5,8 @@ import { useSound } from "../contexts/SoundContext";
 import LeaderboardForm from "./LeaderboardForm";
 import LeaderboardDisplay from "./LeaderboardDisplay";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }) {
   const emptyBoard = Array(9).fill(null);
   const { playSound } = useSound();
@@ -291,7 +293,7 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     setPendingAiMove(true);
 
     try {
-      const response = await axios.post("http://localhost:8080/api/game/aiMove", {
+      const response = await axios.post(`${API_URL}/api/game/aiMove`, {
         board: currentBoard,
         currentPlayer: initialAiMark,
         difficulty: "hard",
