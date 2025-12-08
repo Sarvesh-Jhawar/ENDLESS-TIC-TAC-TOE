@@ -206,37 +206,19 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     setDyingPositions(dying);
   }, [playerMoves, gameOver]);
 
-  // Total game timer effect - only runs during player's turn (fair timer)
+  // Simple continuous game timer - runs from game start to championship over
   useEffect(() => {
     let interval;
-    // Timer only runs when: game is running, not championship over, AND it's player's turn
-    const shouldRunTimer = timerRunning && !championshipOver && isPlayerTurn && !pendingAiMove && !gameOver;
-
-    if (shouldRunTimer) {
-      // Start tracking player turn time
-      if (!playerTurnStartRef.current) {
-        playerTurnStartRef.current = Date.now();
-      }
+    // Timer runs when game is active (not on round start screen, not championship over)
+    if (timerRunning && !championshipOver && !showRoundStart) {
       interval = setInterval(() => {
-        if (playerTurnStartRef.current) {
-          const currentTurnTime = Date.now() - playerTurnStartRef.current;
-          setTotalGameTime(prev => {
-            // Only update if time has actually passed
-            const baseTime = gameStartTimeRef.current || 0;
-            return baseTime + currentTurnTime;
-          });
+        if (gameStartTimeRef.current) {
+          setTotalGameTime(Date.now() - gameStartTimeRef.current);
         }
       }, 10);
-    } else if (playerTurnStartRef.current && !isPlayerTurn) {
-      // Player turn ended - accumulate the time and reset
-      const turnDuration = Date.now() - playerTurnStartRef.current;
-      gameStartTimeRef.current = (gameStartTimeRef.current || 0) + turnDuration;
-      playerTurnStartRef.current = null;
-      setTotalGameTime(gameStartTimeRef.current);
     }
-
     return () => clearInterval(interval);
-  }, [timerRunning, championshipOver, isPlayerTurn, pendingAiMove, gameOver]);
+  }, [timerRunning, championshipOver, showRoundStart]);
 
   // Auto-hide prize dialog after 3 seconds
   useEffect(() => {
@@ -248,22 +230,20 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     }
   }, [showPrizeDialog]);
 
-  // Start timer when first round begins - FIX: use 0 as accumulated time, not timestamp
+  // Start timer when first round begins
   useEffect(() => {
-    if (!showRoundStart && totalRounds === 0 && gameStartTimeRef.current === null) {
-      gameStartTimeRef.current = 0; // Accumulated time starts at 0, NOT Date.now()
+    if (!showRoundStart && totalRounds === 0 && !gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now(); // Store START TIME as timestamp
       setTimerRunning(true);
     }
   }, [showRoundStart, totalRounds]);
 
   // Reset timer on component mount (handles page reload)
   useEffect(() => {
-    // Reset everything on mount to ensure clean state
-    gameStartTimeRef.current = 0; // Accumulated time = 0 (not null, not timestamp)
-    playerTurnStartRef.current = null;
+    gameStartTimeRef.current = null;
     setTotalGameTime(0);
     setTimerRunning(false);
-  }, []); // Empty deps = runs only on mount
+  }, []);
 
 
   // Format time as MM:SS.mmm
