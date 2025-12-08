@@ -248,10 +248,10 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     }
   }, [showPrizeDialog]);
 
-  // Start timer when first round begins
+  // Start timer when first round begins - FIX: use 0 as accumulated time, not timestamp
   useEffect(() => {
-    if (!showRoundStart && totalRounds === 0 && !gameStartTimeRef.current) {
-      gameStartTimeRef.current = Date.now();
+    if (!showRoundStart && totalRounds === 0 && gameStartTimeRef.current === null) {
+      gameStartTimeRef.current = 0; // Accumulated time starts at 0, NOT Date.now()
       setTimerRunning(true);
     }
   }, [showRoundStart, totalRounds]);
@@ -259,7 +259,7 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
   // Reset timer on component mount (handles page reload)
   useEffect(() => {
     // Reset everything on mount to ensure clean state
-    gameStartTimeRef.current = null;
+    gameStartTimeRef.current = 0; // Accumulated time = 0 (not null, not timestamp)
     playerTurnStartRef.current = null;
     setTotalGameTime(0);
     setTimerRunning(false);
