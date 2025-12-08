@@ -1,12 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import ParticleBackground from "./ParticleBackground";
 import SoundButton from "./SoundButton";
 import { useSound } from "../contexts/SoundContext";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function Home() {
   const navigate = useNavigate();
   const { playSound } = useSound();
+  const [isConnectingToAI, setIsConnectingToAI] = useState(false);
+  const [connectionProgress, setConnectionProgress] = useState(0);
+  const [connectionMessage, setConnectionMessage] = useState("Waking up AI...");
+
+
+  // Connect to AI with warmup request
+  const connectToAI = async () => {
+    setIsConnectingToAI(true);
+    setConnectionProgress(0);
+    setConnectionMessage("Waking up AI...");
+
+    // Start progress animation
+    const progressInterval = setInterval(() => {
+      setConnectionProgress(prev => {
+        if (prev >= 90) return prev; // Cap at 90% until actual response
+        return prev + Math.random() * 5;
+      });
+    }, 500);
+
+    // Update messages based on progress
+    const messageInterval = setInterval(() => {
+      setConnectionProgress(prev => {
+        if (prev < 20) setConnectionMessage("🌐 Connecting to server...");
+        else if (prev < 40) setConnectionMessage("🔌 Establishing connection...");
+        else if (prev < 60) setConnectionMessage("🤖 Waking up AI...");
+        else if (prev < 80) setConnectionMessage("⚡ Almost ready...");
+        else setConnectionMessage("🎯 Initializing game...");
+        return prev;
+      });
+    }, 1000);
+
+    try {
+      await axios.get(`${API_URL}/api/game/ready`);
+      clearInterval(progressInterval);
+      clearInterval(messageInterval);
+      setConnectionProgress(100);
+      setConnectionMessage("✅ AI is ready! Starting game...");
+
+      // Small delay to show success message
+      setTimeout(() => {
+        setIsConnectingToAI(false);
+        navigate("/ai");
+      }, 500);
+    } catch (error) {
+      clearInterval(progressInterval);
+      clearInterval(messageInterval);
+      // Still navigate even if warmup fails - game might work
+      setConnectionProgress(100);
+      setConnectionMessage("⚠️ Connecting... (may take a moment)");
+      setTimeout(() => {
+        setIsConnectingToAI(false);
+        navigate("/ai");
+      }, 1000);
+    }
+  };
 
   // Floating symbols data
   const floatingSymbols = [
@@ -30,6 +88,47 @@ function Home() {
 
       {/* Animated gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-red-500/5 via-transparent to-blue-500/5 animate-gradient pointer-events-none" />
+
+      {/* AI Connection Loading Overlay */}
+      {isConnectingToAI && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/98 backdrop-blur-md flex flex-col items-center justify-center">
+          <div className="text-center space-y-8 p-8 max-w-md">
+            {/* Animated AI Icon */}
+            <div className="relative">
+              <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 flex items-center justify-center animate-pulse">
+                <span className="text-6xl">🤖</span>
+              </div>
+              <div className="absolute inset-0 w-32 h-32 mx-auto rounded-full border-4 border-blue-500/30 animate-ping" />
+            </div>
+
+            {/* Title */}
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">Connecting to AI</h2>
+              <p className="text-slate-400 text-sm">First request may take ~50 seconds on free tier</p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-slate-800 rounded-full h-4 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${connectionProgress}%` }}
+              />
+            </div>
+
+            {/* Progress Text */}
+            <div className="space-y-2">
+              <p className="text-xl text-blue-400 font-medium animate-pulse">{connectionMessage}</p>
+              <p className="text-slate-500 text-sm">{Math.round(connectionProgress)}% complete</p>
+            </div>
+
+            {/* Tips */}
+            <div className="text-slate-500 text-xs bg-slate-900/50 rounded-lg p-4">
+              💡 Tip: The AI runs on a free server that sleeps after inactivity.
+              It wakes up on first request!
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating X and O symbols */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -127,7 +226,7 @@ function Home() {
           </button>
 
           <button
-            onClick={() => { playSound('buttonClick'); navigate("/ai"); }}
+            onClick={() => { playSound('buttonClick'); connectToAI(); }}
             onMouseEnter={() => playSound('hover')}
             className="group relative px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-700 backdrop-blur-sm border-2 border-blue-500/50 text-blue-400 font-semibold rounded-xl hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 w-full sm:w-auto min-w-[220px] overflow-hidden shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30"
           >

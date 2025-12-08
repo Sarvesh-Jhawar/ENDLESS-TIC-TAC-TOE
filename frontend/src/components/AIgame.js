@@ -256,6 +256,16 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     }
   }, [showRoundStart, totalRounds]);
 
+  // Reset timer on component mount (handles page reload)
+  useEffect(() => {
+    // Reset everything on mount to ensure clean state
+    gameStartTimeRef.current = null;
+    playerTurnStartRef.current = null;
+    setTotalGameTime(0);
+    setTimerRunning(false);
+  }, []); // Empty deps = runs only on mount
+
+
   // Format time as MM:SS.mmm
   const formatGameTime = (ms) => {
     const minutes = Math.floor(ms / 60000);

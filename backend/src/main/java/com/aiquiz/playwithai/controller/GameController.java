@@ -34,4 +34,17 @@ public class GameController {
         
         return aiService.makeAiMove(boardRequest);
     }
+    
+    /**
+     * Health check endpoint to warm up the service.
+     * Render free tier goes to sleep after inactivity, this wakes it up.
+     */
+    @GetMapping("/ready")
+    public java.util.Map<String, Object> checkReady() {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("status", "ready");
+        response.put("message", "AI is ready to play!");
+        response.put("timestamp", java.time.Instant.now().toString());
+        return response;
+    }
 }
