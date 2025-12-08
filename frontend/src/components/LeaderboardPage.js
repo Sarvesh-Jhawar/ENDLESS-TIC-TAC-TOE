@@ -167,103 +167,106 @@ function LeaderboardPage() {
 
                 {/* Leaderboard Card */}
                 <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-2xl overflow-hidden">
-                    {/* Table Header - Fixed */}
-                    <div className="grid grid-cols-12 gap-2 px-6 py-4 bg-slate-900/50 border-b border-slate-700/50 text-sm font-semibold text-slate-400 uppercase tracking-wide sticky top-0 z-10">
-                        <div className="col-span-1 text-center">Rank</div>
-                        <div className="col-span-5">Player</div>
-                        <div className="col-span-3 text-center">Time <span className="text-xs normal-case">(mm:ss.ms)</span></div>
-                        <div className="col-span-3 text-right">Played</div>
-                    </div>
+                    {/* Horizontal scroll wrapper for mobile */}
+                    <div className="overflow-x-auto">
+                        {/* Table Header - Fixed */}
+                        <div className="grid grid-cols-12 gap-2 px-6 py-4 bg-slate-900/50 border-b border-slate-700/50 text-sm font-semibold text-slate-400 uppercase tracking-wide sticky top-0 z-10 min-w-[600px]">
+                            <div className="col-span-1 text-center">Rank</div>
+                            <div className="col-span-5">Player</div>
+                            <div className="col-span-3 text-center">Time <span className="text-xs normal-case">(mm:ss.ms)</span></div>
+                            <div className="col-span-3 text-right">Played</div>
+                        </div>
 
-                    {/* Scrollable Content */}
-                    <div className="divide-y divide-slate-700/30 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
-                        {isLoading ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="flex items-center gap-3 text-slate-400">
-                                    <svg className="animate-spin h-8 w-8" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
-                                    <span className="text-lg">Loading champions...</span>
-                                </div>
-                            </div>
-                        ) : error ? (
-                            <div className="text-center py-12 px-6">
-                                <p className="text-red-400 text-lg mb-4">{error}</p>
-
-                                {/* Prize Info in error state */}
-                                <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 rounded-xl p-4 mb-6 border border-yellow-500/20">
-                                    <p className="text-yellow-400 font-semibold flex items-center justify-center gap-2">
-                                        <span>🏆</span> Top 2 players win exciting prizes every month! <span>🎁</span>
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => { playSound('buttonClick'); fetchLeaderboard(); }}
-                                    className="px-6 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors font-medium"
-                                >
-                                    🔄 Retry
-                                </button>
-                            </div>
-                        ) : leaderboard.length === 0 ? (
-                            <div className="text-center py-12 px-6">
-                                <div className="text-6xl mb-4 animate-bounce">🎮</div>
-                                <p className="text-2xl font-bold text-white mb-2">No Champions Yet!</p>
-                                <p className="text-slate-400 mb-4">Be the first to defeat the AI and claim the throne.</p>
-
-                                {/* Prize Info Box */}
-                                <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 rounded-xl p-4 mb-6 border border-yellow-500/20">
-                                    <p className="text-yellow-400 font-semibold flex items-center justify-center gap-2">
-                                        <span>🏆</span> Top 2 players win exciting prizes every month! <span>🎁</span>
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => { playSound('buttonClick'); navigate('/ai'); }}
-                                    className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 transition-all"
-                                >
-                                    🤖 Challenge AI & Win Prizes!
-                                </button>
-                            </div>
-                        ) : (
-                            leaderboard.map((entry, index) => {
-                                const rank = index + 1;
-                                const style = getRankStyle(rank);
-                                return (
-                                    <div
-                                        key={entry.id || index}
-                                        className={`grid grid-cols-12 gap-2 px-6 py-4 ${style.bg} border-l-4 ${style.border} transition-all duration-300 hover:bg-slate-700/40 hover:scale-[1.01] cursor-default ${style.glow} shadow-lg`}
-                                    >
-                                        {/* Rank */}
-                                        <div className={`col-span-1 text-center font-bold text-xl ${style.rankColor}`}>
-                                            {style.icon || `#${rank}`}
-                                        </div>
-
-                                        {/* Name */}
-                                        <div className="col-span-5 flex items-center">
-                                            <span className="font-semibold text-white text-lg truncate">
-                                                {entry.name}
-                                            </span>
-                                            {rank === 1 && <span className="ml-2 text-yellow-400 animate-pulse">👑</span>}
-                                        </div>
-
-                                        {/* Time */}
-                                        <div className="col-span-3 text-center">
-                                            <span className="font-mono text-blue-400 font-semibold text-lg">
-                                                {formatTime(entry.timeTakenMs)}
-                                            </span>
-                                        </div>
-
-                                        {/* Date */}
-                                        <div className="col-span-3 text-right flex items-center justify-end">
-                                            <span className="text-slate-400 text-sm">
-                                                {formatRelativeDate(entry.datePlayed)}
-                                            </span>
-                                        </div>
+                        {/* Scrollable Content */}
+                        <div className="divide-y divide-slate-700/30 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 min-w-[600px]">
+                            {isLoading ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="flex items-center gap-3 text-slate-400">
+                                        <svg className="animate-spin h-8 w-8" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        <span className="text-lg">Loading champions...</span>
                                     </div>
-                                );
-                            })
-                        )}
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-12 px-6">
+                                    <p className="text-red-400 text-lg mb-4">{error}</p>
+
+                                    {/* Prize Info in error state */}
+                                    <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 rounded-xl p-4 mb-6 border border-yellow-500/20">
+                                        <p className="text-yellow-400 font-semibold flex items-center justify-center gap-2">
+                                            <span>🏆</span> Top 2 players win exciting prizes every month! <span>🎁</span>
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() => { playSound('buttonClick'); fetchLeaderboard(); }}
+                                        className="px-6 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors font-medium"
+                                    >
+                                        🔄 Retry
+                                    </button>
+                                </div>
+                            ) : leaderboard.length === 0 ? (
+                                <div className="text-center py-12 px-6">
+                                    <div className="text-6xl mb-4 animate-bounce">🎮</div>
+                                    <p className="text-2xl font-bold text-white mb-2">No Champions Yet!</p>
+                                    <p className="text-slate-400 mb-4">Be the first to defeat the AI and claim the throne.</p>
+
+                                    {/* Prize Info Box */}
+                                    <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 rounded-xl p-4 mb-6 border border-yellow-500/20">
+                                        <p className="text-yellow-400 font-semibold flex items-center justify-center gap-2">
+                                            <span>🏆</span> Top 2 players win exciting prizes every month! <span>🎁</span>
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() => { playSound('buttonClick'); navigate('/ai'); }}
+                                        className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105 transition-all"
+                                    >
+                                        🤖 Challenge AI & Win Prizes!
+                                    </button>
+                                </div>
+                            ) : (
+                                leaderboard.map((entry, index) => {
+                                    const rank = index + 1;
+                                    const style = getRankStyle(rank);
+                                    return (
+                                        <div
+                                            key={entry.id || index}
+                                            className={`grid grid-cols-12 gap-2 px-6 py-4 ${style.bg} border-l-4 ${style.border} transition-all duration-300 hover:bg-slate-700/40 hover:scale-[1.01] cursor-default ${style.glow} shadow-lg`}
+                                        >
+                                            {/* Rank */}
+                                            <div className={`col-span-1 text-center font-bold text-xl ${style.rankColor}`}>
+                                                {style.icon || `#${rank}`}
+                                            </div>
+
+                                            {/* Name */}
+                                            <div className="col-span-5 flex items-center">
+                                                <span className="font-semibold text-white text-lg truncate">
+                                                    {entry.name}
+                                                </span>
+                                                {rank === 1 && <span className="ml-2 text-yellow-400 animate-pulse">👑</span>}
+                                            </div>
+
+                                            {/* Time */}
+                                            <div className="col-span-3 text-center">
+                                                <span className="font-mono text-blue-400 font-semibold text-lg">
+                                                    {formatTime(entry.timeTakenMs)}
+                                                </span>
+                                            </div>
+
+                                            {/* Date */}
+                                            <div className="col-span-3 text-right flex items-center justify-end">
+                                                <span className="text-slate-400 text-sm">
+                                                    {formatRelativeDate(entry.datePlayed)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
                     </div>
                 </div>
 
