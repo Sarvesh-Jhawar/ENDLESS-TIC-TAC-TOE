@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/leaderboard")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://endless-tic-tac-toe-puce.vercel.app", "http://localhost:3000"})
 public class LeaderboardController {
 
     @Autowired

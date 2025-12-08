@@ -13,7 +13,7 @@ import com.aiquiz.playwithai.service.AiService;
 
 @RestController
 @RequestMapping("/api/game")
-@CrossOrigin(origins = "*") // allow requests from your frontend
+@CrossOrigin(origins = {"https://endless-tic-tac-toe-puce.vercel.app", "http://localhost:3000"}) // allow requests from deployed frontend and local dev
 public class GameController {
 
     private final AiService aiService;
