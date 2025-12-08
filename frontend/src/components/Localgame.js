@@ -285,7 +285,7 @@ function LocalGame() {
               : ''
               }`}
             style={{
-              
+
             }}
           >
             {player}
@@ -588,9 +588,14 @@ function LocalGame() {
                         : `${player2Name || "Player 2"} (O) wins this round!`}
                     </p>
                     {currentRound < totalRounds ? (
-                      <p className="text-lg text-slate-300">
-                        Round {currentRound} of {totalRounds} completed
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-lg text-slate-300">
+                          Round {currentRound} of {totalRounds} completed
+                        </p>
+                        <p className="text-base text-slate-400">
+                          Score: <span className="text-red-500 font-bold">{player1Name || "Player 1"} {player1Score}</span> - <span className="text-blue-500 font-bold">{player2Score} {player2Name || "Player 2"}</span>
+                        </p>
+                      </div>
                     ) : (
                       <div className="space-y-4">
                         <p className="text-lg text-slate-300">All rounds completed!</p>

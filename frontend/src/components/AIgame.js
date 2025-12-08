@@ -41,10 +41,11 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
   aiMovesRef.current = aiMoves;
   const prevBoardRef = useRef(emptyBoard);
 
-  // Total game timer (milliseconds)
+  // Total game timer (milliseconds) - only counts player's time, not AI thinking time
   const [totalGameTime, setTotalGameTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const gameStartTimeRef = useRef(null);
+  const playerTurnStartRef = useRef(null); // Track when player's turn started
 
   // AI COMMENTS LIBRARY
   const comments = {
@@ -205,18 +206,37 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
     setDyingPositions(dying);
   }, [playerMoves, gameOver]);
 
-  // Total game timer effect - updates every 10ms for milliseconds precision
+  // Total game timer effect - only runs during player's turn (fair timer)
   useEffect(() => {
     let interval;
-    if (timerRunning && !championshipOver) {
+    // Timer only runs when: game is running, not championship over, AND it's player's turn
+    const shouldRunTimer = timerRunning && !championshipOver && isPlayerTurn && !pendingAiMove && !gameOver;
+
+    if (shouldRunTimer) {
+      // Start tracking player turn time
+      if (!playerTurnStartRef.current) {
+        playerTurnStartRef.current = Date.now();
+      }
       interval = setInterval(() => {
-        if (gameStartTimeRef.current) {
-          setTotalGameTime(Date.now() - gameStartTimeRef.current);
+        if (playerTurnStartRef.current) {
+          const currentTurnTime = Date.now() - playerTurnStartRef.current;
+          setTotalGameTime(prev => {
+            // Only update if time has actually passed
+            const baseTime = gameStartTimeRef.current || 0;
+            return baseTime + currentTurnTime;
+          });
         }
       }, 10);
+    } else if (playerTurnStartRef.current && !isPlayerTurn) {
+      // Player turn ended - accumulate the time and reset
+      const turnDuration = Date.now() - playerTurnStartRef.current;
+      gameStartTimeRef.current = (gameStartTimeRef.current || 0) + turnDuration;
+      playerTurnStartRef.current = null;
+      setTotalGameTime(gameStartTimeRef.current);
     }
+
     return () => clearInterval(interval);
-  }, [timerRunning, championshipOver]);
+  }, [timerRunning, championshipOver, isPlayerTurn, pendingAiMove, gameOver]);
 
   // Auto-hide prize dialog after 3 seconds
   useEffect(() => {
