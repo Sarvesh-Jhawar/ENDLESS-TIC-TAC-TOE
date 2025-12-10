@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from 'react-helmet-async';
 import ParticleBackground from "./ParticleBackground";
 import Confetti from "./Confetti";
 import SoundButton from "./SoundButton";
@@ -382,6 +383,10 @@ function LocalGame() {
   if (showRules) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+        <Helmet>
+          <title>Endless Tic-Tac-Toe | Local Game</title>
+          <meta name="description" content="Play Endless Tic-Tac-Toe with a friend locally. Your oldest mark disappears when you place your 4th!" />
+        </Helmet>
         <ParticleBackground particleColor="mixed" />
         <SoundButton />
         <button onClick={() => { playSound('buttonClick'); navigate('/'); }} style={{ position: 'fixed', top: '20px', left: '20px', width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(71, 85, 105, 0.8)', border: '2px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', zIndex: 9999, backdropFilter: 'blur(10px)' }} title="Home"> Home</button>

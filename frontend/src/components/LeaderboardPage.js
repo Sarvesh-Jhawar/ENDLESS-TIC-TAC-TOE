@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from 'react-helmet-async';
 import axios from "axios";
 import ParticleBackground from "./ParticleBackground";
 import SoundButton from "./SoundButton";
@@ -103,6 +104,11 @@ function LeaderboardPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center p-4 relative overflow-hidden">
+            <Helmet>
+                <title>Endless Tic-Tac-Toe | Leaderboard</title>
+                <meta name="description" content="View the global leaderboard of Endless Tic-Tac-Toe Champions. Top 2 players win exciting prizes every month!" />
+            </Helmet>
+
             {/* Particle Background */}
             <ParticleBackground particleColor="mixed" />
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from 'react-helmet-async';
 import axios from "axios";
 import ParticleBackground from "./ParticleBackground";
 import SoundButton from "./SoundButton";
@@ -95,6 +96,11 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+      <Helmet>
+        <title>Endless Tic-Tac-Toe | Home</title>
+        <meta name="description" content="Start your journey to become the Endless Tic-Tac-Toe Champion. Challenge AI, play with friends, and climb the leaderboard!" />
+      </Helmet>
+
       {/* Particle Background */}
       <ParticleBackground particleColor="mixed" />
 

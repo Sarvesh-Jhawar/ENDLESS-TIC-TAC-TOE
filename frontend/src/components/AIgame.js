@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
+import { Helmet } from 'react-helmet-async';
 import SoundButton from "./SoundButton";
 import { useSound } from "../contexts/SoundContext";
 import LeaderboardForm from "./LeaderboardForm";
@@ -520,6 +521,10 @@ function AIgame({ playerMark: initialPlayerMark, aiMark: initialAiMark, onQuit }
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', color: 'white' }}>
+      <Helmet>
+        <title>Endless Tic-Tac-Toe | Challenge AI</title>
+        <meta name="description" content="Challenge our smart AI in Endless Tic-Tac-Toe! Win 5 rounds to become Champion and join the global leaderboard." />
+      </Helmet>
 
       {/* Floating Prize Dialog - Auto vanishes after 3 seconds */}
       {showPrizeDialog && (
